@@ -17,7 +17,7 @@ Ensure that Python is installed on your system. If Python is not installed, you 
 
 ### 3. Navigate to Projeto-IA Folder
 
-Open a terminal or command prompt and navigate to the Projeto-IA folder using the `cd` command:
+Open a terminal or command prompt and navigate to the Projeto-IA folder:
 
 ```bash
 cd /path/to/Projeto-IA
