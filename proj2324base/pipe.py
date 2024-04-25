@@ -62,8 +62,13 @@ class Board:
 
 
         """
-        line = sys.stdin.readline().split()
-        return line
+        lines = list()
+        while True:
+            line = sys.stdin.readline().split()
+            if not line:
+                break
+            lines.append(line)
+        return lines
 
     # TODO: outros metodos da classe
 
