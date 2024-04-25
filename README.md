@@ -51,3 +51,20 @@ Install project dependencies from the requirements.txt file:
 ```bash
 pip install -r requirements.txt
 ```
+
+## How to Test
+
+To run the program, follow these steps:
+
+1. Ensure you are in the Projeto-IA directory in the terminal.
+
+2. Use the following syntax to run the program:
+
+```bash
+python proj2324base/pipe.py < test_folder_name/test_file_name
+```
+
+For example:
+```bash
+python proj2324base/pipe.py < custom-tests/mytest1.txt
+```
