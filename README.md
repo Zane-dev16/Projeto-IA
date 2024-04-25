@@ -31,7 +31,7 @@ Create a virtual environment named `projenv` using Python's built-in `venv` modu
 python -m venv projenv
 ```
 
-5. Activate Virtual Environment
+### 5. Activate Virtual Environment
 Activate the projenv virtual environment. Activation steps depend on your operating system:
 
 **On Windows**:
@@ -45,7 +45,7 @@ projenv\Scripts\activate
 source projenv/bin/activate
 ```
 
-6. Install Dependencies
+### 6. Install Dependencies
 Install project dependencies from the requirements.txt file:
 
 ```bash
