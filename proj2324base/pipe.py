@@ -118,8 +118,7 @@ class Board:
 class PipeMania(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        super().__init__(PipeManiaState(board))
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -151,7 +150,5 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
-    board = Board.parse_instance()
-    print(board.adjacent_horizontal_values(0, 0))
-    print(board.adjacent_horizontal_values(1, 1))
-    print(board.adjacent_horizontal_values(2, 2))
+    pipemania = PipeMania(Board.parse_instance())
+    print(pipemania.initial.board.pipes)
