@@ -72,8 +72,20 @@ class Board:
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        # TODO
-        pass
+        if not self.is_valid_indices(row, col):
+            raise IndexError("Board row or column out of bounds")
+
+        if self.is_valid_indices(row, col - 1):
+            pipe_left = self.get_value(row, col - 1)
+        else:
+            pipe_left = None
+
+        if self.is_valid_indices(row, col + 1):
+            pipe_right = self.get_value(row, col + 1)
+        else:
+            pipe_right = None
+
+        return (pipe_left, pipe_right)
 
     @staticmethod 
     def read_pipes():
@@ -138,6 +150,6 @@ class PipeMania(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board.adjacent_vertical_values(0, 0))
-    print(board.adjacent_vertical_values(1, 1))
-    print(board.adjacent_vertical_values(2, 2))
+    print(board.adjacent_horizontal_values(0, 0))
+    print(board.adjacent_horizontal_values(1, 1))
+    print(board.adjacent_horizontal_values(2, 2))
