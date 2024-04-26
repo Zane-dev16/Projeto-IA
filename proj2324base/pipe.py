@@ -138,5 +138,6 @@ class PipeMania(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board.get_value(0, 0))
-    print(board.get_value(10, 10))
+    print(board.adjacent_vertical_values(0, 0))
+    print(board.adjacent_vertical_values(1, 1))
+    print(board.adjacent_vertical_values(2, 2))
