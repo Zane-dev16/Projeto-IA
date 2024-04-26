@@ -37,11 +37,14 @@ class Board:
 
     def __init__(self, pipes) -> None:
         self.pipes = pipes
+        self.nrows = len(self.pipes)
+        self.ncols = len(self.pipes)
 
     def get_value(self, row: int, col: int) -> str:
-        """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        if 0 <= row < self.nrows and 0 <= col < self.ncols:
+            return self.pipes[row][col]
+        else:
+            raise IndexError("Board row or column out of bounds")
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
@@ -118,4 +121,5 @@ class PipeMania(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board.pipes)
+    print(board.get_value(0, 0))
+    print(board.get_value(10, 10))
