@@ -41,6 +41,9 @@ class Board:
         self.ncols = len(self.pipes)
 
     def is_not_valid_indices(self, row: int, col: int) -> bool:
+        """Devolve True se os indices não existem no Board e
+        False caso contrário"""
+
         return not 0 <= row < self.nrows and 0 <= col < self.ncols
 
     def get_value(self, row: int, col: int) -> str:
@@ -51,8 +54,8 @@ class Board:
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        # TODO
-        pass
+
+    
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
