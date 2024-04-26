@@ -40,22 +40,34 @@ class Board:
         self.nrows = len(self.pipes)
         self.ncols = len(self.pipes)
 
-    def is_not_valid_indices(self, row: int, col: int) -> bool:
-        """Devolve True se os indices não existem no Board e
+    def is_valid_indices(self, row: int, col: int) -> bool:
+        """Devolve True se os indices existem no Board e
         False caso contrário"""
 
-        return not 0 <= row < self.nrows and 0 <= col < self.ncols
+        return 0 <= row < self.nrows and 0 <= col < self.ncols
 
     def get_value(self, row: int, col: int) -> str:
-        if self.is_not_valid_indices(row, col):
+        if not self.is_valid_indices(row, col):
             raise IndexError("Board row or column out of bounds")
         return self.pipes[row][col]
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
+        if not self.is_valid_indices(row, col):
+            raise IndexError("Board row or column out of bounds")
 
-    
+        if self.is_valid_indices(row - 1, col):
+            pipe_above = self.get_value(row - 1, col)
+        else:
+            pipe_above = None
+
+        if self.is_valid_indices(row + 1, col):
+            pipe_below = self.get_value(row + 1, col)
+        else:
+            pipe_below = None
+
+        return (pipe_above, pipe_below)
 
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
