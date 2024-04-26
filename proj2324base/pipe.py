@@ -123,8 +123,14 @@ class PipeMania(Problem):
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        # TODO
-        pass
+        action_list = list()
+        nrows = self.initial.board.nrows
+        ncols = self.initial.board.ncols
+        for i in range(nrows):
+            for j in range(ncols):
+                action_list.append((i, j, True))
+                action_list.append((i, j, False))
+        return action_list
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -151,4 +157,4 @@ class PipeMania(Problem):
 
 if __name__ == "__main__":
     pipemania = PipeMania(Board.parse_instance())
-    print(pipemania.initial.board.pipes)
+    print(pipemania.actions(pipemania.initial))
