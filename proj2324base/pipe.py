@@ -52,6 +52,16 @@ class Board:
         # TODO
         pass
 
+    @staticmethod 
+    def read_pipes():
+        pipes = list()
+        while True:
+            pipe_row = sys.stdin.readline().split()
+            if not pipe_row:
+                break
+            pipes.append(pipe_row)
+        return pipes
+
     @staticmethod
     def parse_instance():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -62,13 +72,8 @@ class Board:
 
 
         """
-        lines = list()
-        while True:
-            line = sys.stdin.readline().split()
-            if not line:
-                break
-            lines.append(line)
-        return lines
+        pipes = Board.read_pipes()
+        return pipes
 
     # TODO: outros metodos da classe
 
