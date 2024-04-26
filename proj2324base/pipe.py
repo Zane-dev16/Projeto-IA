@@ -40,11 +40,13 @@ class Board:
         self.nrows = len(self.pipes)
         self.ncols = len(self.pipes)
 
+    def is_not_valid_indices(self, row: int, col: int) -> bool:
+        return not 0 <= row < self.nrows and 0 <= col < self.ncols
+
     def get_value(self, row: int, col: int) -> str:
-        if 0 <= row < self.nrows and 0 <= col < self.ncols:
-            return self.pipes[row][col]
-        else:
+        if self.is_not_valid_indices(row, col):
             raise IndexError("Board row or column out of bounds")
+        return self.pipes[row][col]
 
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
