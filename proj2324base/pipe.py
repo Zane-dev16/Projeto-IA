@@ -76,7 +76,7 @@ class Board:
 
         """
         pipes = Board.read_pipes()
-        return pipes
+        return Board(pipes)
 
     # TODO: outros metodos da classe
 
@@ -118,4 +118,4 @@ class PipeMania(Problem):
 
 if __name__ == "__main__":
     board = Board.parse_instance()
-    print(board)
+    print(board.pipes)
