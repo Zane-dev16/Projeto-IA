@@ -89,6 +89,8 @@ class Board:
 
     @staticmethod 
     def read_pipes():
+        """Lê o test do standard input (stdin) que é passado como argumento
+        e retorna uma matriz dos pipes."""
         pipes = list()
         while True:
             pipe_row = sys.stdin.readline().split()
