@@ -137,22 +137,46 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
-        pass
+        
+        row = action[0]
+        col = action[1]
+        rotate = action[2]
+
+        new_board = [row[:] for row in state.board.pipes]  # Cria uma cópia do tabuleiro
+        #if rotate:
+            # Rotaciona o tubo na posição (row, col)
+            #falta fazer
+        #else:
+            # Inverte o tubo na posição (row, col)
+            #falta fazer
+            
+        #return PipeManiaState(Board(new_board))
+        
 
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
-        # TODO
-        pass
+        
+        for row in range(state.board.nrows):
+            for col in range(state.board.ncols):
+                pipe = state.board.get_value(row, col)
+                if pipe == "-":
+                    return False  # Encontrou uma posicao vazia, então nao e um estado objetivo
+        return True
+
+        
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
-
-    # TODO: outros metodos da classe
+        # pecas que faltam ir ao lugar
+        count = 0
+        for row in range(node.state.board.nrows):
+            for col in range(node.state.board.ncols):
+                pipe = node.state.board.get_value(row, col)
+                if pipe == "-":
+                    count += 1
+        return count
 
 
 if __name__ == "__main__":
