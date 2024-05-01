@@ -35,6 +35,13 @@ class PipeManiaState:
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
 
+    headings_list = {
+        "F": ["FD","FC", "FE", "FB"],
+        "B": ["BD","BC", "BE", "BB"],
+        "V": ["VD","VC", "VE", "VB"],
+        "L": ["LH","LV"]
+    }
+
     def __init__(self, pipes) -> None:
         self.pipes = pipes
         self.nrows = len(self.pipes)
