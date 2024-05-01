@@ -19,6 +19,7 @@ from search import (
 
 
 class PipeManiaState:
+
     state_id = 0
 
     def __init__(self, board):
@@ -29,19 +30,25 @@ class PipeManiaState:
     def __lt__(self, other):
         return self.id < other.id
 
-    # TODO: outros metodos da classe
+    def rotate(self, row, col, clockwise):
+        headings_list = {
+            "F": ["FD", "FC", "FE", "FB"],
+            "B": ["BD", "BC", "BE", "BB"],
+            "V": ["VD", "VC", "VE", "VB"],
+            "L": ["LH","LV"]
+        }
+        print(row, col, clockwise)
+
+        pipes = self.board.pipes
+        value = self.board.get_value(row, col)
+        headings = headings_list[value[0]]
+        inc = -1 if clockwise else 1
+        pipes[row][col] = headings[(headings.index(value) + inc) % len(headings)]
+        return PipeManiaState(Board(pipes))
 
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
-
-    headings_list = {
-        "F": ["FD","FC", "FE", "FB"],
-        "B": ["BD","BC", "BE", "BB"],
-        "V": ["VD","VC", "VE", "VB"],
-        "L": ["LH","LV"]
-    }
-
     def __init__(self, pipes) -> None:
         self.pipes = pipes
         self.nrows = len(self.pipes)
@@ -144,20 +151,8 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        
-        row = action[0]
-        col = action[1]
-        rotate = action[2]
 
-        new_board = [row[:] for row in state.board.pipes]  # Cria uma cópia do tabuleiro
-        #if rotate:
-            # Rotaciona o tubo na posição (row, col)
-            #falta fazer
-        #else:
-            # Inverte o tubo na posição (row, col)
-            #falta fazer
-            
-        #return PipeManiaState(Board(new_board))
+        return state.rotate(*action)
         
 
     def goal_test(self, state: PipeManiaState):
@@ -187,5 +182,13 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
-    pipemania = PipeMania(Board.parse_instance())
-    print(pipemania.actions(pipemania.initial))
+    # Ler grelha do figura 1a:
+    board = Board.parse_instance()
+    # Criar uma instância de PipeMania:
+    problem = PipeMania(board)
+    # Criar um estado com a configuração inicial:
+    initial_state = PipeManiaState(board) # Mostrar valor na posição (2, 2):
+    print(initial_state.board.get_value(2, 2))
+    # Realizar ação de rodar 90° clockwise a peça (2, 2)
+    result_state = problem.result(initial_state, (2, 2, True)) # Mostrar valor na posição (2, 2):
+    print(result_state.board.get_value(2, 2))
