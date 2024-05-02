@@ -163,12 +163,7 @@ class PipeMania(Problem):
         self.actions(state)."""
 
         return state.rotate(*action)
-        
 
-    def goal_test(self, state: PipeManiaState):
-        """Retorna True se e só se o estado passado como argumento é
-        um estado objetivo. Deve verificar se todas as posições do tabuleiro
-        estão preenchidas de acordo com as regras do problema."""
         
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
