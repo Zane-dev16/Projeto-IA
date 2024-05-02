@@ -54,7 +54,7 @@ class Board:
         self.nrows = len(self.pipes)
         self.ncols = len(self.pipes)
 
-    def copy_board(self) -> None:
+    def copy_board(self):
         """Copia da Representação interna de um tabuleiro de PipeMania."""
 
         new_board = Board()
