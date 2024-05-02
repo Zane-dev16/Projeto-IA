@@ -19,6 +19,7 @@ from search import (
 
 
 class PipeManiaState:
+
     state_id = 0
 
     def __init__(self, board):
@@ -29,16 +30,39 @@ class PipeManiaState:
     def __lt__(self, other):
         return self.id < other.id
 
-    # TODO: outros metodos da classe
+    def rotate(self, row, col, clockwise):
+        headings_list = {
+            "F": ["FD", "FC", "FE", "FB"],
+            "B": ["BD", "BC", "BE", "BB"],
+            "V": ["VD", "VC", "VE", "VB"],
+            "L": ["LH","LV"]
+        }
+        print(row, col, clockwise)
+
+        pipes = self.board.pipes
+        value = self.board.get_value(row, col)
+        headings = headings_list[value[0]]
+        inc = -1 if clockwise else 1
+        pipes[row][col] = headings[(headings.index(value) + inc) % len(headings)]
+        return PipeManiaState(Board(pipes))
 
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
-
     def __init__(self, pipes) -> None:
         self.pipes = pipes
         self.nrows = len(self.pipes)
         self.ncols = len(self.pipes)
+
+    def copy_board(self) -> None:
+        """Copia da Representação interna de um tabuleiro de PipeMania."""
+
+        new_board = Board()
+        new_board.pipes = self.pipes
+        new_board.nrows = self.nrows
+        new_board.ncols = self.ncols
+
+        return new_board
 
     def is_valid_indices(self, row: int, col: int) -> bool:
         """Devolve True se os indices existem no Board e
@@ -137,20 +161,8 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        
-        row = action[0]
-        col = action[1]
-        rotate = action[2]
 
-        new_board = [row[:] for row in state.board.pipes]  # Cria uma cópia do tabuleiro
-        #if rotate:
-            # Rotaciona o tubo na posição (row, col)
-            #falta fazer
-        #else:
-            # Inverte o tubo na posição (row, col)
-            #falta fazer
-            
-        #return PipeManiaState(Board(new_board))
+        return state.rotate(*action)
         
 
     def goal_test(self, state: PipeManiaState):
@@ -158,27 +170,77 @@ class PipeMania(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas de acordo com as regras do problema."""
         
+    def goal_test(self, state: PipeManiaState):
+        """Retorna True se e só se o estado passado como argumento é
+        um estado objetivo. Deve verificar se todas as posições do tabuleiro
+        estão preenchidas corretamente e formam um caminho contínuo."""
+
+        # Verificar se todas as posicoes do board estao corretamente preenchidas
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 pipe = state.board.get_value(row, col)
-                if pipe == "-":
-                    return False  # Encontrou uma posicao vazia, então nao e um estado objetivo
+                if pipe != ("FD" or "FC" or "FE" or "FB" or "BD" or "BC" or "BE" or "BB" or "VD" or "VC" or "VE" or "VB" or "LH" or "LV"):
+                    return False  # Encontrou uma posicao vazia ou com input errado, nao e um estado objetivo
+
+        # Verificar se todas as peças estao conectadas formando um caminho contínuo
+        visited = [[False] * state.board.ncols for _ in range(state.board.nrows)]
+
+        def dfs(row, col):
+            if not state.board.is_valid_indices(row, col) or visited[row][col]:
+                return
+            visited[row][col] = True
+            pipe = state.board.get_value(row, col)
+            
+            if pipe[1] in ['C', 'E', 'B', 'D']:
+                next_row, next_col = row, col + 1
+                dfs(next_row, next_col)
+            if pipe[1] in ['C', 'B', 'F', 'H']:
+                next_row, next_col = row + 1, col
+                dfs(next_row, next_col)
+            if pipe[1] in ['F', 'E', 'H', 'V']:
+                next_row, next_col = row, col - 1
+                dfs(next_row, next_col)
+            if pipe[1] in ['D', 'E', 'V', 'L']:
+                next_row, next_col = row - 1, col
+                dfs(next_row, next_col)
+
+        dfs(0, 0)  # comeca a procura na posicao inicial
+        # Verifica se todas as posicoes foram visitadas
+        for row in range(state.board.nrows):
+            for col in range(state.board.ncols):
+                if not visited[row][col]:
+                    return False  # Encontrou uma posicao que nao foi visitada, nao e um estado objetivo
+
         return True
+
 
         
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
-        # pecas que faltam ir ao lugar
-        count = 0
-        for row in range(node.state.board.nrows):
-            for col in range(node.state.board.ncols):
-                pipe = node.state.board.get_value(row, col)
-                if pipe == "-":
-                    count += 1
-        return count
+        #conta o numero de peças fora do lugar
+ 
+        misplaced_pieces = 0
+        nrows = node.state.board.nrows
+        ncols = node.state.board.ncols
+        for row in range(nrows):
+            for col in range(ncols):
+                current_pipe = node.state.board.get_value(row, col)
+                goal_pipe = self.goal.get_value(row, col)
+                if current_pipe != goal_pipe:
+                    misplaced_pieces += 1
+        return misplaced_pieces
+
 
 
 if __name__ == "__main__":
-    pipemania = PipeMania(Board.parse_instance())
-    print(pipemania.actions(pipemania.initial))
+    # Ler grelha do figura 1a:
+    board = Board.parse_instance()
+    # Criar uma instância de PipeMania:
+    problem = PipeMania(board)
+    # Criar um estado com a configuração inicial:
+    initial_state = PipeManiaState(board) # Mostrar valor na posição (2, 2):
+    print(initial_state.board.get_value(2, 2))
+    # Realizar ação de rodar 90° clockwise a peça (2, 2)
+    result_state = problem.result(initial_state, (2, 2, True)) # Mostrar valor na posição (2, 2):
+    print(result_state.board.get_value(2, 2))
