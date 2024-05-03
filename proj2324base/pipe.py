@@ -136,6 +136,15 @@ class Board:
         pipes = Board.read_pipes()
         return Board(pipes)
 
+    def print_solution(self):
+        """Imprime a solução final do jogo."""
+        for row in range(board.nrows):
+            for col in range(board.ncols):
+                print(board.pipes[row][col])
+            print()
+
+
+
     # TODO: outros metodos da classe
 
 
@@ -239,3 +248,12 @@ if __name__ == "__main__":
     # Realizar ação de rodar 90° clockwise a peça (2, 2)
     result_state = problem.result(initial_state, (2, 2, True)) # Mostrar valor na posição (2, 2):
     print(result_state.board.get_value(2, 2))
+
+
+
+    #algoritmo de busca para encontrar a solucao
+    solution = astar_search(problem, h=problem.h)
+    # solucao ig
+    final_board = solution.state.board
+    #board final
+    print(final_board)
