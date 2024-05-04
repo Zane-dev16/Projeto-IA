@@ -161,9 +161,15 @@ class PipeMania(Problem):
         ncols = self.initial.board.ncols
         for i in range(nrows):
             for j in range(ncols):
-                action_list.append((i, j, True))
-                action_list.append((i, j, False))
+                # Verificar se a peça já está na orientação correta
+                pipe = state.board.get_value(i, j)
+                if pipe not in ['FD', 'FC', 'FE', 'FB', 'BD', 'BC', 'BE', 'BB', 'VD', 'VC', 'VE', 'VB', 'LH', 'LV']:
+                    # Adicionar a ação de rotação para a direita
+                    action_list.append((i, j, True))
+                    # Adicionar a ação de rotação para a esquerda
+                    action_list.append((i, j, False))
         return action_list
+
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -218,12 +224,10 @@ class PipeMania(Problem):
         return True
 
 
-        
 
     def h(self, node: Node):
-        """Função heuristica utilizada para a procura A*."""
-        #conta o numero de peças fora do lugar
- 
+        """Função heurística utilizada para a procura A*."""
+        # Pecas que faltam ir ao lugar
         misplaced_pieces = 0
         nrows = node.state.board.nrows
         ncols = node.state.board.ncols
@@ -233,7 +237,27 @@ class PipeMania(Problem):
                 goal_pipe = self.goal.get_value(row, col)
                 if current_pipe != goal_pipe:
                     misplaced_pieces += 1
-        return misplaced_pieces
+
+        # mete um peso maior para os tubos bem conectados
+        connected_pieces = 0
+        for row in range(node.state.board.nrows):
+            for col in range(node.state.board.ncols):
+                pipe = node.state.board.get_value(row, col)
+                above, below = node.state.board.adjacent_vertical_values(row, col)
+                left, right = node.state.board.adjacent_horizontal_values(row, col)
+                #ve se os tubos adjacentes estão conectadas corretamente
+                if above and above[1] in ['B', 'C'] and pipe[1] in ['F', 'H']:
+                    connected_pieces += 1
+                if below and below[1] in ['F', 'H'] and pipe[1] in ['B', 'C']:
+                    connected_pieces += 1
+                if left and left[1] in ['D', 'E'] and pipe[1] in ['C', 'H']:
+                    connected_pieces += 1
+                if right and right[1] in ['C', 'H'] and pipe[1] in ['D', 'E']:
+                    connected_pieces += 1
+
+        #soma dos tubos fora do lugar e dos tubos bem conectados
+        return misplaced_pieces + connected_pieces * 2
+
 
 
 
