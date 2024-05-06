@@ -331,10 +331,11 @@ class PipeMania(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
 
-        action_list = []
+        action_list = list()
 
         nrows = self.initial.board.nrows
         ncols = self.initial.board.ncols
+        #print(ncols, nrows)
 
         for i in range(nrows):
             for j in range(ncols):
@@ -362,7 +363,7 @@ class PipeMania(Problem):
                 # Casos para a linha de cima
                 elif i == 0:
                     if pipe == "BB" or pipe == "LH":
-                        pass
+                        continue
                     elif pipe == "BC":
                         action_list.append((i, j, True)) 
                     elif pipe == "BE":
@@ -373,7 +374,7 @@ class PipeMania(Problem):
                 # Casos para linha de baixo
                 elif i == nrows - 1:
                     if pipe == "BC" or pipe == "LH":
-                        pass
+                        continue
                     elif pipe == "BB":
                         action_list.append((i, j, True)) 
                     elif pipe == "BD":
@@ -384,7 +385,7 @@ class PipeMania(Problem):
                 # Casos para a linha da direita
                 elif j == ncols - 1:
                     if pipe == "BE" or pipe == "LV":
-                        pass
+                        continue
                     elif pipe == "BD":
                         action_list.append((i, j, True)) 
                     elif pipe == "BC":
@@ -395,7 +396,7 @@ class PipeMania(Problem):
                 # Casos para a linha da esquerda
                 elif j == 0:
                     if pipe == "BD" or pipe == "LV":
-                        pass
+                        continue
                     elif pipe == "BE":
                         action_list.append((i, j, True)) 
                     elif pipe == "BB":
@@ -408,6 +409,8 @@ class PipeMania(Problem):
                     action_list.append((i, j, True))
                     action_list.append((i, j, False))
 
+
+        #print(action_list) #para tentar perceber o que esta a acontecer mas ta complicado
         return action_list
 
 
@@ -497,45 +500,101 @@ class PipeMania(Problem):
 
 
 
-def h(self, node: Node):
-        """Função heurística utilizada para a procura A*."""
-        state = node.state
-        # Pecas que faltam ir ao lugar
-        misplaced_pieces = 0
-        nrows = state.board.nrows
-        ncols = state.board.ncols
-        for row in range(nrows):
-            for col in range(ncols):
-                current_pipe = state.board.get_value(row, col)
-                goal_pipe = self.goal.get_value(row, col)  # Corrigir esta linha
-                if current_pipe != goal_pipe:
-                    misplaced_pieces += 1
+    def h(self, node: Node):
+            """Função heurística utilizada para a procura A*."""
+            state = node.state
+            # Pecas que faltam ir ao lugar
+            misplaced_pieces = 0
+            nrows = state.board.nrows
+            ncols = state.board.ncols
+            for row in range(nrows):
+                for col in range(ncols):
+                    current_pipe = state.board.get_value(row, col)
+                    goal_pipe = self.goal.get_value(row, col)  # Corrigir esta linha
+                    if current_pipe != goal_pipe:
+                        misplaced_pieces += 1
 
-        # mete um peso maior para os tubos bem conectados
-        connected_pieces = 0
-        for row in range(nrows):
-            for col in range(ncols):
-                pipe = state.board.get_value(row, col)
-                above, below = state.board.adjacent_vertical_values(row, col)
-                left, right = state.board.adjacent_horizontal_values(row, col)
-                #ve se os tubos adjacentes estão conectadas corretamente
-                if above and above[1] in ['B', 'C'] and pipe[1] in ['F', 'H']:
-                    connected_pieces += 1
-                if below and below[1] in ['F', 'H'] and pipe[1] in ['B', 'C']:
-                    connected_pieces += 1
-                if left and left[1] in ['D', 'E'] and pipe[1] in ['C', 'H']:
-                    connected_pieces += 1
-                if right and right[1] in ['C', 'H'] and pipe[1] in ['D', 'E']:
-                    connected_pieces += 1
+            # mete um peso maior para os tubos bem conectados
+            connected_pieces = 0
+            for row in range(nrows):
+                for col in range(ncols):
+                    pipe = state.board.get_value(row, col)
+                    above, below = state.board.adjacent_vertical_values(row, col)
+                    left, right = state.board.adjacent_horizontal_values(row, col)
+                    #ve se os tubos adjacentes estão conectadas corretamente
+                    if above and above[1] in ['B', 'C'] and pipe[1] in ['F', 'H']:
+                        connected_pieces += 1
+                    if below and below[1] in ['F', 'H'] and pipe[1] in ['B', 'C']:
+                        connected_pieces += 1
+                    if left and left[1] in ['D', 'E'] and pipe[1] in ['C', 'H']:
+                        connected_pieces += 1
+                    if right and right[1] in ['C', 'H'] and pipe[1] in ['D', 'E']:
+                        connected_pieces += 1
 
-        #soma dos tubos fora do lugar e dos tubos bem conectados
-        return misplaced_pieces + connected_pieces * 2
+            #soma dos tubos fora do lugar e dos tubos bem conectados
+            return misplaced_pieces + connected_pieces * 2
 
 
 if __name__ == "__main__":
-    
+   
+    '''
+     # Ler grelha do figura 1a:
+    board = Board.parse_instance()
+    print(board.adjacent_vertical_values(0, 0))
+    print(board.adjacent_horizontal_values(0, 0))
+    print(board.adjacent_vertical_values(1, 1))
+    print(board.adjacent_horizontal_values(1, 1))'''
 
-    # Ler grelha do figura 1a:
+
+
+
+
+
+    '''
+     # Ler grelha do figura 1a:
+    board = Board.parse_instance()
+    # Criar uma instância de PipeMania:
+    problem = PipeMania(board)
+    # Criar um estado com a configuração inicial:
+    initial_state = PipeManiaState(board)
+    # Mostrar valor na posição (2, 2):
+    print(initial_state.board.get_value(2, 2))
+    # Realizar ação de rodar 90° clockwise a peça (2, 2)
+    result_state = problem.result(initial_state, (2, 2, True))
+    # Mostrar valor na posição (2, 2):
+    print(result_state.board.get_value(2, 2))
+'''
+
+
+
+
+    '''# Ler grelha do figura 1a:
+    board = Board.parse_instance()
+    # Criar uma instância de PipeMania:
+    problem = PipeMania(board)
+    # Criar um estado com a configuração inicial:
+    s0 = PipeManiaState(board)
+    # Aplicar as ações que resolvem a instância
+    s1 = problem.result(s0, (0, 1, True))
+    s2 = problem.result(s1, (0, 1, True))
+    s3 = problem.result(s2, (0, 2, True))
+    s4 = problem.result(s3, (0, 2, True))
+    s5 = problem.result(s4, (1, 0, True))
+    s6 = problem.result(s5, (1, 1, True))
+    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso)
+    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso)
+    s9 = problem.result(s8, (2, 1, True))
+    s10 = problem.result(s9, (2, 1, True))
+    s11 = problem.result(s10, (2, 2, True))
+    # Verificar se foi atingida a solução
+    print("Is goal?", problem.goal_test(s5))
+    print("Is goal?", problem.goal_test(s11))
+    print("Solution:\n", s11.board.print(), sep="")'''
+
+
+
+    
+    '''# Ler grelha do figura 1a:
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
     problem = PipeMania(board)
@@ -543,5 +602,15 @@ if __name__ == "__main__":
     goal_node = depth_first_tree_search(problem)
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.print(), sep="")
+    print("Solution:\n", goal_node.state.board.print(), sep="")'''
+
+
+    board = Board.parse_instance()
+    board.print()
+    problem = PipeMania(board)
+    initial_state = PipeManiaState(board)
+    print(problem.actions(initial_state))
+
+
+
 
