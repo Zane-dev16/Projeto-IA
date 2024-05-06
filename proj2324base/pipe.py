@@ -330,18 +330,90 @@ class PipeMania(Problem):
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-        action_list = list()
+
+        action_list = []
+
         nrows = self.initial.board.nrows
         ncols = self.initial.board.ncols
+
         for i in range(nrows):
             for j in range(ncols):
-                # Verificar se a peça já está na orientação correta
+
                 pipe = state.board.get_value(i, j)
-                # Adicionar a ação de rotação para a direita
-                action_list.append((i, j, True))
-                # Adicionar a ação de rotação para a esquerda
-                action_list.append((i, j, False))
+
+                # Casos para os cantos 
+                if (i, j) == (0, 0):
+                    if pipe != "VB":
+                        action_list.append((i, j, True))  # Rotação para a direita
+                        action_list.append((i, j, False))  # Rotação para a esquerda
+                elif (i, j) == (0, ncols - 1):
+                    if pipe != "VE":
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                elif (i, j) == (nrows - 1, 0):
+                    if pipe != "VD":
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                elif (i, j) == (nrows - 1, ncols - 1):
+                    if pipe != "VC":
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+
+                # Casos para a linha de cima
+                elif i == 0:
+                    if pipe == "BB" or pipe == "LH":
+                        pass
+                    elif pipe == "BC":
+                        action_list.append((i, j, True))  # Rotação 180º
+                    elif pipe == "BE":
+                        action_list.append((i, j, False))  # Rotação anti-horária
+                    else:
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                # Casos para linha de baixo
+                elif i == nrows - 1:
+                    if pipe == "BC" or pipe == "LH":
+                        pass
+                    elif pipe == "BB":
+                        action_list.append((i, j, True))  # Rotação 180º
+                    elif pipe == "BD":
+                        action_list.append((i, j, False))  # Rotação horária
+                    else:
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                # Casos para a linha da direita
+                elif j == ncols - 1:
+                    if pipe == "BE" or pipe == "LV":
+                        pass
+                    elif pipe == "BD":
+                        action_list.append((i, j, True))  # Rotação 180º
+                    elif pipe == "BC":
+                        action_list.append((i, j, False))  # Rotação anti-horária
+                    else:
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                # Casos para a linha da esquerda
+                elif j == 0:
+                    if pipe == "BD" or pipe == "LV":
+                        pass
+                    elif pipe == "BE":
+                        action_list.append((i, j, True))  # Rotação 180º
+                    elif pipe == "BB":
+                        action_list.append((i, j, False))  # Rotação horária
+                    else:
+                        action_list.append((i, j, True))
+                        action_list.append((i, j, False))
+                # restantes casos que faltam (dentro do board)
+                else:
+                    action_list.append((i, j, True))
+                    action_list.append((i, j, False))
+
         return action_list
+
+
+            
+    
+
 
 
     def result(self, state: PipeManiaState, action):
@@ -358,9 +430,9 @@ class PipeMania(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas corretamente e formam um caminho contínuo."""
 
-        pipe_list = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
-
         # Verificar se todas as posicoes do board estao corretamente preenchidas
+        pipe_list = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
+        
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 pipe = state.board.get_value(row, col)
