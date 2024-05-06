@@ -344,8 +344,8 @@ class PipeMania(Problem):
                 # Casos para os cantos 
                 if (i, j) == (0, 0):
                     if pipe != "VB":
-                        action_list.append((i, j, True))  # Rotação para a direita
-                        action_list.append((i, j, False))  # Rotação para a esquerda
+                        action_list.append((i, j, True))  
+                        action_list.append((i, j, False))  
                 elif (i, j) == (0, ncols - 1):
                     if pipe != "VE":
                         action_list.append((i, j, True))
@@ -364,9 +364,9 @@ class PipeMania(Problem):
                     if pipe == "BB" or pipe == "LH":
                         pass
                     elif pipe == "BC":
-                        action_list.append((i, j, True))  # Rotação 180º
+                        action_list.append((i, j, True)) 
                     elif pipe == "BE":
-                        action_list.append((i, j, False))  # Rotação anti-horária
+                        action_list.append((i, j, False))  
                     else:
                         action_list.append((i, j, True))
                         action_list.append((i, j, False))
@@ -375,9 +375,9 @@ class PipeMania(Problem):
                     if pipe == "BC" or pipe == "LH":
                         pass
                     elif pipe == "BB":
-                        action_list.append((i, j, True))  # Rotação 180º
+                        action_list.append((i, j, True)) 
                     elif pipe == "BD":
-                        action_list.append((i, j, False))  # Rotação horária
+                        action_list.append((i, j, False))  
                     else:
                         action_list.append((i, j, True))
                         action_list.append((i, j, False))
@@ -386,9 +386,9 @@ class PipeMania(Problem):
                     if pipe == "BE" or pipe == "LV":
                         pass
                     elif pipe == "BD":
-                        action_list.append((i, j, True))  # Rotação 180º
+                        action_list.append((i, j, True)) 
                     elif pipe == "BC":
-                        action_list.append((i, j, False))  # Rotação anti-horária
+                        action_list.append((i, j, False))  
                     else:
                         action_list.append((i, j, True))
                         action_list.append((i, j, False))
@@ -397,9 +397,9 @@ class PipeMania(Problem):
                     if pipe == "BD" or pipe == "LV":
                         pass
                     elif pipe == "BE":
-                        action_list.append((i, j, True))  # Rotação 180º
+                        action_list.append((i, j, True)) 
                     elif pipe == "BB":
-                        action_list.append((i, j, False))  # Rotação horária
+                        action_list.append((i, j, False))  
                     else:
                         action_list.append((i, j, True))
                         action_list.append((i, j, False))
