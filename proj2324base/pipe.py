@@ -492,9 +492,11 @@ class PipeMania(Problem):
                     return False
             return True
 
+        if dfs(row, col) == False:
+            return False
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
-                if (dfs(row, col) == False):
+                if not visited[row][col]:
                     return False
         return True
 
