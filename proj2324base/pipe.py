@@ -538,39 +538,7 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
-   
-    '''
-     # Ler grelha do figura 1a:
-    board = Board.parse_instance()
-    print(board.adjacent_vertical_values(0, 0))
-    print(board.adjacent_horizontal_values(0, 0))
-    print(board.adjacent_vertical_values(1, 1))
-    print(board.adjacent_horizontal_values(1, 1))'''
-
-
-
-
-
-
-    '''
-     # Ler grelha do figura 1a:
-    board = Board.parse_instance()
-    # Criar uma instância de PipeMania:
-    problem = PipeMania(board)
-    # Criar um estado com a configuração inicial:
-    initial_state = PipeManiaState(board)
-    # Mostrar valor na posição (2, 2):
-    print(initial_state.board.get_value(2, 2))
-    # Realizar ação de rodar 90° clockwise a peça (2, 2)
-    result_state = problem.result(initial_state, (2, 2, True))
-    # Mostrar valor na posição (2, 2):
-    print(result_state.board.get_value(2, 2))
-'''
-
-
-
-
-    '''# Ler grelha do figura 1a:
+    # Ler grelha do figura 1a:
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
     problem = PipeMania(board)
@@ -583,36 +551,12 @@ if __name__ == "__main__":
     s4 = problem.result(s3, (0, 2, True))
     s5 = problem.result(s4, (1, 0, True))
     s6 = problem.result(s5, (1, 1, True))
-    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso)
-    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso)
+    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso) 
+    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso) 
     s9 = problem.result(s8, (2, 1, True))
     s10 = problem.result(s9, (2, 1, True))
     s11 = problem.result(s10, (2, 2, True))
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(s5))
     print("Is goal?", problem.goal_test(s11))
-    print("Solution:\n", s11.board.print(), sep="")'''
-
-
-
-    
-    '''# Ler grelha do figura 1a:
-    board = Board.parse_instance()
-    # Criar uma instância de PipeMania:
-    problem = PipeMania(board)
-    # Obter o nó solução usando a procura em profundidade:
-    goal_node = depth_first_tree_search(problem)
-    # Verificar se foi atingida a solução
-    print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.print(), sep="")'''
-
-
-    board = Board.parse_instance()
-    board.print()
-    problem = PipeMania(board)
-    initial_state = PipeManiaState(board)
-    print(problem.actions(initial_state))
-
-
-
-
+    print("Solution:\n", s11.board.print(), sep="")
