@@ -60,7 +60,7 @@ class Board:
         return self.pipes[row][col]
 
 
-    def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
+    def adjacent_vertical_values(self, row: int, col: int) -> tuple[str, str]:
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
         if not self.is_valid_indices(row, col):
@@ -82,7 +82,7 @@ class Board:
         """Copia da Representação interna de um tabuleiro de PipeMania."""
         return Board([[self.get_value(row, col) for col in range(self.ncols)] for row in range(self.nrows)])
 
-    def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
+    def adjacent_horizontal_values(self, row: int, col: int) -> tuple[str, str]:
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         if not self.is_valid_indices(row, col):
