@@ -592,9 +592,11 @@ class PipeMania(Problem):
                     return False
             return True
 
+        if dfs(row, col) == False:
+            return False
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
-                if (dfs(row, col) == False):
+                if not visited[row][col]:
                     return False
         return True
 
@@ -635,6 +637,7 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
 
     board = Board.parse_instance()
     problem = PipeMania(board)
@@ -673,6 +676,9 @@ if __name__ == "__main__":
 
 
     '''# Ler grelha do figura 1a:
+=======
+    # Ler grelha do figura 1a:
+>>>>>>> 23b1b847fb75057a612e2ec933760f33d11ad07a
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
     problem = PipeMania(board)
@@ -685,14 +691,15 @@ if __name__ == "__main__":
     s4 = problem.result(s3, (0, 2, True))
     s5 = problem.result(s4, (1, 0, True))
     s6 = problem.result(s5, (1, 1, True))
-    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso)
-    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso)
+    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso) 
+    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso) 
     s9 = problem.result(s8, (2, 1, True))
     s10 = problem.result(s9, (2, 1, True))
     s11 = problem.result(s10, (2, 2, True))
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(s5))
     print("Is goal?", problem.goal_test(s11))
+<<<<<<< HEAD
     print("Solution:\n", s11.board.print(), sep="")'''
 
 
@@ -718,3 +725,6 @@ if __name__ == "__main__":
 
 
 
+=======
+    print("Solution:\n", s11.board.print(), sep="")
+>>>>>>> 23b1b847fb75057a612e2ec933760f33d11ad07a
