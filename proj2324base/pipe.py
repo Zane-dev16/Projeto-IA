@@ -327,6 +327,78 @@ class PipeMania(Problem):
         """O construtor especifica o estado inicial."""
         super().__init__(PipeManiaState(board))
 
+    
+    def adiciona_lista_pecas_F(i, j, pipe, action_list):
+        if pipe[0] == 'F':
+            if pipe[1]== 'C':
+                action_list.append((i, j, 'FB'))
+                action_list.append((i, j, 'FE'))
+                action_list.append((i, j, 'FD'))
+            elif pipe[1]== 'B':
+                action_list.append((i, j, 'FC'))
+                action_list.append((i, j, 'FE'))
+                action_list.append((i, j, 'FD'))
+            elif pipe[1]== 'E':
+                action_list.append((i, j, 'FC'))
+                action_list.append((i, j, 'FB'))
+                action_list.append((i, j, 'FD'))  
+            elif pipe[1]== 'D':
+                action_list.append((i, j, 'FC'))
+                action_list.append((i, j, 'FB'))
+                action_list.append((i, j, 'FE'))  
+    
+    def adiciona_lista_pecas_B(i, j,pipe, action_list):
+        if pipe[0] == 'B':
+            if pipe[1]== 'C':
+                action_list.append((i, j, 'BB'))
+                action_list.append((i, j, 'BE'))
+                action_list.append((i, j, 'BD'))
+            elif pipe[1]== 'B':
+                action_list.append((i, j, 'BC'))
+                action_list.append((i, j, 'BE'))
+                action_list.append((i, j, 'BD'))
+            elif pipe[1]== 'E':
+                action_list.append((i, j, 'BC'))
+                action_list.append((i, j, 'BB'))
+                action_list.append((i, j, 'BD'))  
+            elif pipe[1]== 'D':
+                action_list.append((i, j, 'BC'))
+                action_list.append((i, j, 'BB'))
+                action_list.append((i, j, 'BE'))
+
+    def adiciona_lista_pecas_V(i, j,pipe, action_list):
+        if pipe[0] == 'V':
+            if pipe[1]== 'C':
+                action_list.append((i, j, 'VB'))
+                action_list.append((i, j, 'VE'))
+                action_list.append((i, j, 'VD'))
+            elif pipe[1]== 'B':
+                action_list.append((i, j, 'VC'))
+                action_list.append((i, j, 'VE'))
+                action_list.append((i, j, 'VD'))
+            elif pipe[1]== 'E':
+                action_list.append((i, j, 'VC'))
+                action_list.append((i, j, 'VB'))
+                action_list.append((i, j, 'VD'))  
+            elif pipe[1]== 'D':
+                action_list.append((i, j, 'VC'))
+                action_list.append((i, j, 'VB'))
+                action_list.append((i, j, 'VE'))
+
+    def adiciona_lista_pecas_V(i,j,pipe, action_list):
+        if pipe[0] == 'L':
+            if pipe[1]== 'H':
+                action_list.append((i, j, 'LV'))
+
+            elif pipe[1]== 'V':
+                action_list.append((i, j, 'LH'))
+ 
+
+
+        
+
+
+
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
@@ -341,82 +413,109 @@ class PipeMania(Problem):
             for j in range(ncols):
 
                 pipe = state.board.get_value(i, j)
+                rotated = False
 
-                # Casos para os cantos 
-                if (i, j) == (0, 0):
-                    if pipe != "VB":
-                        action_list.append((i, j, True))  
-                        action_list.append((i, j, False))  
+                #casoso cantos
+                if(i,j) == (0,0):
+                    if pipe == 'VB':
+                        continue
+                    elif pipe == 'VC' or pipe == 'VE' or pipe == 'VD':
+                        pipe = 'VB'
                 elif (i, j) == (0, ncols - 1):
-                    if pipe != "VE":
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                    if pipe == 'VE':
+                        continue
+                    elif pipe == 'VB' or pipe == 'VC' or pipe == 'VD':
+                        pipe = 'VE'
                 elif (i, j) == (nrows - 1, 0):
-                    if pipe != "VD":
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                    if pipe == 'VD':
+                        continue
+                    elif pipe == 'VB' or pipe == 'VC' or pipe == 'VE':
+                        pipe = 'VD'
                 elif (i, j) == (nrows - 1, ncols - 1):
-                    if pipe != "VC":
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                    if pipe == 'VC':
+                        continue
+                    elif pipe == 'VB' or pipe == 'VD' or pipe == 'VE':
+                        pipe = 'VC'
+                adiciona_lista_pecas_F(i, j, pipe, action_list)
+                adiciona_lista_pecas_B(i, j, pipe, action_list)
+                adiciona_lista_pecas_L(i, j, pipe, action_list)
+
+
 
                 # Casos para a linha de cima
                 elif i == 0:
                     if pipe == "BB" or pipe == "LH":
                         continue
                     elif pipe == "BC":
-                        action_list.append((i, j, True)) 
+                        action_list.append((i, j, 'BC')) 
+
                     elif pipe == "BE":
-                        action_list.append((i, j, False))  
+                        action_list.append((i, j, 'BC'))
+  
                     else:
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                        adiciona_lista_pecas_F(i, j, pipe, action_list)
+                        adiciona_lista_pecas_B(i, j, pipe, action_list)
+                        adiciona_lista_pecas_L(i, j, pipe, action_list)
+                        adiciona_lista_pecas_V(i, j, pipe, action_list)
+
+
+
                 # Casos para linha de baixo
                 elif i == nrows - 1:
                     if pipe == "BC" or pipe == "LH":
                         continue
                     elif pipe == "BB":
-                        action_list.append((i, j, True)) 
+                        action_list.append((i, j, 'BC')) 
+                        
                     elif pipe == "BD":
-                        action_list.append((i, j, False))  
+                        action_list.append((i, j, 'BC'))  
+                        
                     else:
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                        adiciona_lista_pecas_F(i, j, pipe, action_list)
+                        adiciona_lista_pecas_B(i, j, pipe, action_list)
+                        adiciona_lista_pecas_L(i, j, pipe, action_list)
+                        adiciona_lista_pecas_V(i, j, pipe, action_list)
+                        
                 # Casos para a linha da direita
                 elif j == ncols - 1:
                     if pipe == "BE" or pipe == "LV":
                         continue
                     elif pipe == "BD":
-                        action_list.append((i, j, True)) 
+                        action_list.append((i, j, 'BE')) 
+                         
                     elif pipe == "BC":
-                        action_list.append((i, j, False))  
+                        action_list.append((i, j, 'BE'))
+                           
                     else:
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                        adiciona_lista_pecas_F(i, j, pipe, action_list)
+                        adiciona_lista_pecas_B(i, j, pipe, action_list)
+                        adiciona_lista_pecas_L(i, j, pipe, action_list)
+                        adiciona_lista_pecas_V(i, j, pipe, action_list)
+                         
                 # Casos para a linha da esquerda
                 elif j == 0:
                     if pipe == "BD" or pipe == "LV":
                         continue
                     elif pipe == "BE":
-                        action_list.append((i, j, True)) 
+                        action_list.append((i, j, 'BD')) 
+                         
                     elif pipe == "BB":
-                        action_list.append((i, j, False))  
+                        action_list.append((i, j, 'BD'))  
+                         
                     else:
-                        action_list.append((i, j, True))
-                        action_list.append((i, j, False))
+                        adiciona_lista_pecas_F(i, j, pipe, action_list)
+                        adiciona_lista_pecas_B(i, j, pipe, action_list)
+                        adiciona_lista_pecas_L(i, j, pipe, action_list)
+                        adiciona_lista_pecas_V(i, j, pipe, action_list)
+                         
                 # restantes casos que faltam (dentro do board)
                 else:
-                    action_list.append((i, j, True))
-                    action_list.append((i, j, False))
-
-
-        #print(action_list) #para tentar perceber o que esta a acontecer mas ta complicado
+                    adiciona_lista_pecas_F(i, j, pipe, action_list)
+                    adiciona_lista_pecas_B(i, j, pipe, action_list)
+                    adiciona_lista_pecas_L(i, j, pipe, action_list)
+                    adiciona_lista_pecas_V(i, j, pipe, action_list)
+                     
         return action_list
-
-
-            
-    
-
 
 
     def result(self, state: PipeManiaState, action):
@@ -444,6 +543,7 @@ class PipeMania(Problem):
 
         # Verificar se todas as peças estao conectadas formando um caminho contínuo
         visited = [[False] * state.board.ncols for _ in range(state.board.nrows)]
+        #num_connected_components = 0
 
         def dfs(row, col, source=None):
             if not state.board.is_valid_indices(row, col):
@@ -499,7 +599,6 @@ class PipeMania(Problem):
         return True
 
 
-
     def h(self, node: Node):
             """Função heurística utilizada para a procura A*."""
             state = node.state
@@ -536,6 +635,11 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
+
+    board = Board.parse_instance()
+    problem = PipeMania(board)
+    initial_state = PipeManiaState(board)
+    print("Is goal?", problem.goal_test(initial_state))
    
     '''
      # Ler grelha do figura 1a:
@@ -605,11 +709,11 @@ if __name__ == "__main__":
     print("Solution:\n", goal_node.state.board.print(), sep="")'''
 
 
-    board = Board.parse_instance()
+    '''board = Board.parse_instance()
     board.print()
     problem = PipeMania(board)
     initial_state = PipeManiaState(board)
-    print(problem.actions(initial_state))
+    print(problem.actions(initial_state))'''
 
 
 
