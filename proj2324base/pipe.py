@@ -385,7 +385,7 @@ class PipeMania(Problem):
                 action_list.append((i, j, 'VB'))
                 action_list.append((i, j, 'VE'))
 
-    def adiciona_lista_pecas_V(i,j,pipe, action_list):
+    def adiciona_lista_pecas_L(i,j,pipe, action_list):
         if pipe[0] == 'L':
             if pipe[1]== 'H':
                 action_list.append((i, j, 'LV'))
@@ -413,7 +413,6 @@ class PipeMania(Problem):
             for j in range(ncols):
 
                 pipe = state.board.get_value(i, j)
-                rotated = False
 
                 #casoso cantos
                 if(i,j) == (0,0):
@@ -440,10 +439,8 @@ class PipeMania(Problem):
                 adiciona_lista_pecas_B(i, j, pipe, action_list)
                 adiciona_lista_pecas_L(i, j, pipe, action_list)
 
-
-
                 # Casos para a linha de cima
-                elif i == 0:
+                if i == 0:
                     if pipe == "BB" or pipe == "LH":
                         continue
                     elif pipe == "BC":
@@ -451,7 +448,6 @@ class PipeMania(Problem):
 
                     elif pipe == "BE":
                         action_list.append((i, j, 'BC'))
-  
                     else:
                         adiciona_lista_pecas_F(i, j, pipe, action_list)
                         adiciona_lista_pecas_L(i, j, pipe, action_list)
@@ -460,7 +456,7 @@ class PipeMania(Problem):
 
 
                 # Casos para linha de baixo
-                elif i == nrows - 1:
+                if i == nrows - 1:
                     if pipe == "BC" or pipe == "LH":
                         continue
                     elif pipe == "BB":
@@ -475,7 +471,7 @@ class PipeMania(Problem):
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
                         
                 # Casos para a linha da direita
-                elif j == ncols - 1:
+                if j == ncols - 1:
                     if pipe == "BE" or pipe == "LV":
                         continue
                     elif pipe == "BD":
@@ -490,7 +486,7 @@ class PipeMania(Problem):
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
                          
                 # Casos para a linha da esquerda
-                elif j == 0:
+                if j == 0:
                     if pipe == "BD" or pipe == "LV":
                         continue
                     elif pipe == "BE":
@@ -633,7 +629,6 @@ class PipeMania(Problem):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
 
     board = Board.parse_instance()
     problem = PipeMania(board)
@@ -672,9 +667,6 @@ if __name__ == "__main__":
 
 
     '''# Ler grelha do figura 1a:
-=======
-    # Ler grelha do figura 1a:
->>>>>>> 23b1b847fb75057a612e2ec933760f33d11ad07a
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
     problem = PipeMania(board)
@@ -695,7 +687,6 @@ if __name__ == "__main__":
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(s5))
     print("Is goal?", problem.goal_test(s11))
-<<<<<<< HEAD
     print("Solution:\n", s11.board.print(), sep="")'''
 
 
@@ -721,6 +712,3 @@ if __name__ == "__main__":
 
 
 
-=======
-    print("Solution:\n", s11.board.print(), sep="")
->>>>>>> 23b1b847fb75057a612e2ec933760f33d11ad07a
