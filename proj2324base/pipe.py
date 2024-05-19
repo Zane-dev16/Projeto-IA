@@ -22,28 +22,23 @@ class PipeManiaState:
 
     state_id = 0
 
-    def __init__(self, board, history=None):
+    def __init__(self, board):
         self.board = board
         self.id = PipeManiaState.state_id
         PipeManiaState.state_id += 1
-        if history == None:
-            self.history = [[[board.get_value(i, j)] for j in range(board.ncols)] for i in range(board.nrows)]
-        else:
-            self.history = history
+        self.expansion_id = 0
 
     def __lt__(self, other):
         return self.id < other.id
 
     def rotate(self, row, col, new_piece):
-        #print(row, col, clockwise)
-        history = [[cell[:] for cell in row] for row in self.history]
-        history[row][col].append(new_piece)
         new_board = self.board.copy_board()
         new_board.pipes[row][col] = new_piece
-
-
-        return PipeManiaState(new_board, history)
-
+        return PipeManiaState(new_board)
+    
+    def copy_state(self):
+        new_board = self.board.copy_board()
+        return PipeManiaState(new_board)
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
@@ -146,94 +141,67 @@ class PipeMania(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         super().__init__(PipeManiaState(board))
-
     
-    def append_F_piece_actions(self, i, j, pipe, action_list, cell_history):
-        for pipe in ['FC', 'FB', 'FE', 'FD']:
-            if pipe not in cell_history:
-                action_list.append((i, j, pipe))
+    def append_F_piece_actions(self, i, j, pipe, action_list):
+        for new_pipe in ['FC', 'FB', 'FE', 'FD']:
+            if new_pipe != pipe:
+                action_list.append((i, j, new_pipe))
     
-    def append_B_piece_actions(self, i, j,pipe, action_list, cell_history):
-        for pipe in ['BC', 'BB', 'BE', 'BD']:
-            if pipe not in cell_history:
-                action_list.append((i, j, pipe))
+    def append_B_piece_actions(self, i, j,pipe, action_list):
+        for new_pipe in ['BC', 'BB', 'BE', 'BD']:
+            if new_pipe != pipe:
+                action_list.append((i, j, new_pipe))
 
-    def append_V_piece_actions(self, i, j,pipe, action_list, cell_history):
-        for pipe in ['VC', 'VB', 'VE', 'VD']:
-            if pipe not in cell_history:
-                action_list.append((i, j, pipe))
+    def append_V_piece_actions(self, i, j,pipe, action_list):
+        for new_pipe in ['VC', 'VB', 'VE', 'VD']:
+            if new_pipe != pipe:
+                action_list.append((i, j, new_pipe))
 
-    def append_L_piece_actions(self, i,j,pipe, action_list, cell_history):
-        for pipe in ['LH', 'LV']:
-            if pipe not in cell_history:
-                action_list.append((i, j, pipe))
+    def append_L_piece_actions(self, i,j, pipe, action_list):
+        for new_pipe in ['LH', 'LV']:
+            if new_pipe != pipe:
+                action_list.append((i, j, new_pipe))
 
-    def append_piece_actions(self, i, j, pipe, action_list, cell_history):
+    def append_piece_actions(self, i, j, pipe, action_list):
         if pipe[0] == 'F':
-            self.append_F_piece_actions(i, j, pipe, action_list, cell_history)
+            self.append_F_piece_actions(i, j, pipe, action_list)
         if pipe[0] == 'B':
-            self.append_B_piece_actions(i, j, pipe, action_list, cell_history)
+            self.append_B_piece_actions(i, j, pipe, action_list)
         if pipe[0] == 'V':
-            self.append_V_piece_actions(i, j, pipe, action_list, cell_history)
+            self.append_V_piece_actions(i, j, pipe, action_list)
         if pipe[0] == 'L':
-            self.append_L_piece_actions(i, j, pipe, action_list, cell_history)
+            self.append_L_piece_actions(i, j, pipe, action_list)
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
 
-        action_list = list()
+        action_list = [None]
 
         nrows = self.initial.board.nrows
         ncols = self.initial.board.ncols
-        #print(ncols, nrows)
-
-        for i in range(nrows):
-            for j in range(ncols):
-                pipe = state.board.get_value(i, j)
-                rotated = False
-
-                #casoso cantos
-                if(i,j) == (0,0):
-                    if pipe == 'VB':
-                        continue
-                if (i, j) == (0, ncols - 1):
-                    if pipe == 'VE':
-                        continue
-                if (i, j) == (nrows - 1, 0):
-                    if pipe == 'VD':
-                        continue
-                if (i, j) == (nrows - 1, ncols - 1):
-                    if pipe == 'VC':
-                        continue
-                # Casos para a linha de cima
-                if i == 0:
-                    if pipe == "BB" or pipe == "LH":
-                        continue
-                # Casos para linha de baixo
-                if i == nrows - 1:
-                    if pipe == "BC" or pipe == "LH":
-                        continue
-                # Casos para a linha da direita
-                if j == ncols - 1:
-                    if pipe == "BE" or pipe == "LV":
-                        continue
-                # Casos para a linha da esquerda
-                if j == 0:
-                    if pipe == "BD" or pipe == "LV":
-                        continue 
-                # restantes casos que faltam (dentro do board)
-                self.append_piece_actions(i, j, pipe, action_list, state.history[i][j])
-
+        i = state.expansion_id // ncols
+        j = state.expansion_id % ncols
+        if i == nrows:
+            return []
+        pipe = state.board.get_value(i, j)
+        
+        #casoso cantos
+        # restantes casos que faltam (dentro do board)
+        self.append_piece_actions(i, j, pipe, action_list)
         return action_list
-
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        return state.rotate(*action)
+        if action == None:
+            new_state = state.copy_state()
+        else:
+            new_state = state.rotate(*action)
+        new_state.expansion_id = state.expansion_id + 1
+        return new_state
 
         
     def goal_test(self, state: PipeManiaState):
@@ -356,6 +324,3 @@ if __name__ == "__main__":
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(goal_node.state))
     print("Solution:\n", goal_node.state.board.print(), sep="")
-
-
-
