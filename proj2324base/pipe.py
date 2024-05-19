@@ -138,9 +138,11 @@ class Board:
 
 
 class PipeMania(Problem):
-    def __init__(self, board: Board):
+    def __init__(self, board: Board ,goal_board: Board = None):
         """O construtor especifica o estado inicial."""
         super().__init__(PipeManiaState(board))
+        self.goal_board = goal_board
+
     
     def append_F_piece_actions(self, i, j, pipe, action_list):
         for new_pipe in ['FC', 'FB', 'FE', 'FD']:
@@ -228,73 +230,86 @@ class PipeMania(Problem):
         return new_state
 
         
+    def h(self, node: Node):
+        """Função heurística utilizada para a procura A*."""
+        state = node.state
+        misplaced_pieces = 0
+        nrows = state.board.nrows
+        ncols = state.board.ncols
+
+        for row in range(nrows):
+            for col in range(ncols):
+                current_pipe = state.board.get_value(row, col)
+                if self.goal_board:
+                    goal_pipe = self.goal_board.get_value(row, col)
+                    if current_pipe != goal_pipe:
+                        misplaced_pieces += 1
+
+        # Weight for connected pipes
+        connected_pieces = 0
+        for row in range(nrows):
+            for col in range(ncols):
+                pipe = state.board.get_value(row, col)
+                above, below = state.board.adjacent_vertical_values(row, col)
+                left, right = state.board.adjacent_horizontal_values(row, col)
+                if above and above[1] in ['B', 'C'] and pipe[1] in ['F', 'H']:
+                    connected_pieces += 1
+                if below and below[1] in ['F', 'H'] and pipe[1] in ['B', 'C']:
+                    connected_pieces += 1
+                if left and left[1] in ['D', 'E'] and pipe[1] in ['C', 'H']:
+                    connected_pieces += 1
+                if right and right[1] in ['C', 'H'] and pipe[1] in ['D', 'E']:
+                    connected_pieces += 1
+
+        return misplaced_pieces + connected_pieces * 2
+
+
+
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas corretamente e formam um caminho contínuo."""
 
-        # Verificar se todas as posicoes do board estao corretamente preenchidas
         pipe_list = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
-        
+
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 pipe = state.board.get_value(row, col)
                 if pipe not in pipe_list:
-                    return False  # Encontrou uma posicao vazia ou com input errado, nao e um estado objetivo
+                    return False 
 
-        # Verificar se todas as peças estao conectadas formando um caminho contínuo
         visited = [[False] * state.board.ncols for _ in range(state.board.nrows)]
-        #num_connected_components = 0
 
-        def dfs(row, col, source=None):
-            if not state.board.is_valid_indices(row, col):
-                return False 
-            if visited[row][col]:
-                return True
+        def dfs(row, col, direction):
+            stack = [(row, col, direction)]  # (row, col, direcao de onde viemos)
+            while stack:
+                r, c, source = stack.pop()
+                if not state.board.is_valid_indices(r, c):
+                    continue
+                if visited[r][c]:
+                    continue
 
-            visited[row][col] = True
-            pipe = state.board.get_value(row, col)
+                visited[r][c] = True
+                pipe = state.board.get_value(r, c)
 
-            lig_esq = ["FE", "BC", "BB", "BE", "VC", "VE", "LH"]
-            lig_dir = ["FD", "BC", "BB", "BD", "VB", "VD", "LH"]
-            lig_cima = ["FC", "BC", "BE", "BD", "VC", "VD", "LV"]
-            lig_baixo = ["FB", "BB", "BE","BD", "VB", "VE", "LV"]
+                connections = {
+                    "left": ["FE", "BC", "BB", "BE", "VC", "VE", "LH"],
+                    "right": ["FD", "BC", "BB", "BD", "VB", "VD", "LH"],
+                    "up": ["FC", "BC", "BE", "BD", "VC", "VD", "LV"],
+                    "down": ["FB", "BB", "BE", "BD", "VB", "VE", "LV"]
+                }
 
-            if pipe not in lig_dir:
-                if source=="D":
-                    return False
-            else:
-                next_row, next_col = row, col + 1
-                if dfs(next_row, next_col, source="E") == False:
-                    return False
+                if pipe in connections["right"] and source != "left":
+                    stack.append((r, c + 1, "right"))
+                if pipe in connections["down"] and source != "up":
+                    stack.append((r + 1, c, "down"))
+                if pipe in connections["left"] and source != "right":
+                    stack.append((r, c - 1, "left"))
+                if pipe in connections["up"] and source != "down":
+                    stack.append((r - 1, c, "up"))
 
-            if pipe not in lig_baixo:
-                if source=="B":
-                    return False
-            else:
-                next_row, next_col = row + 1, col
-                if dfs(next_row, next_col, source="C") == False:
-                    return False
+        dfs(0, 0, None)
 
-            if pipe not in lig_esq:
-                if source=="E":
-                    return False
-            else:
-                next_row, next_col = row, col - 1
-                if dfs(next_row, next_col, source="D") == False:
-                    return False
-
-            if pipe not in lig_cima:
-                if source=="C":
-                    return False
-            else:
-                next_row, next_col = row - 1, col
-                if dfs(next_row, next_col, source="B") == False:
-                    return False
-            return True
-
-        if dfs(row, col) == False:
-            return False
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 if not visited[row][col]:
@@ -302,49 +317,15 @@ class PipeMania(Problem):
         return True
 
 
-    def h(self, node: Node):
-            """Função heurística utilizada para a procura A*."""
-            state = node.state
-            # Pecas que faltam ir ao lugar
-            misplaced_pieces = 0
-            nrows = state.board.nrows
-            ncols = state.board.ncols
-            for row in range(nrows):
-                for col in range(ncols):
-                    current_pipe = state.board.get_value(row, col)
-                    goal_pipe = self.goal.get_value(row, col)  # Corrigir esta linha
-                    if current_pipe != goal_pipe:
-                        misplaced_pieces += 1
 
-            # mete um peso maior para os tubos bem conectados
-            connected_pieces = 0
-            for row in range(nrows):
-                for col in range(ncols):
-                    pipe = state.board.get_value(row, col)
-                    above, below = state.board.adjacent_vertical_values(row, col)
-                    left, right = state.board.adjacent_horizontal_values(row, col)
-                    #ve se os tubos adjacentes estão conectadas corretamente
-                    if above and above[1] in ['B', 'C'] and pipe[1] in ['F', 'H']:
-                        connected_pieces += 1
-                    if below and below[1] in ['F', 'H'] and pipe[1] in ['B', 'C']:
-                        connected_pieces += 1
-                    if left and left[1] in ['D', 'E'] and pipe[1] in ['C', 'H']:
-                        connected_pieces += 1
-                    if right and right[1] in ['C', 'H'] and pipe[1] in ['D', 'E']:
-                        connected_pieces += 1
 
-            #soma dos tubos fora do lugar e dos tubos bem conectados
-            return misplaced_pieces + connected_pieces * 2
 
 
 if __name__ == "__main__":
 
-    # Ler grelha do figura 1a:
     board = Board.parse_instance()
-    # Criar uma instância de PipeMania:
     problem = PipeMania(board)
-    # Obter o nó solução usando a procura em profundidade:
-    goal_node = depth_first_tree_search(problem)
-    # Verificar se foi atingida a solução
-    print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.print(), sep="")
+    goal_node = astar_search(problem)
+    if goal_node:
+        print(goal_node.state.board.print())
+    pass
