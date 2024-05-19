@@ -185,9 +185,33 @@ class PipeMania(Problem):
         if i == nrows:
             return []
         pipe = state.board.get_value(i, j)
-        
-        #casoso cantos
-        # restantes casos que faltam (dentro do board)
+        if(i,j) == (0,0):
+            if pipe == 'VB':
+                return action_list
+        if (i, j) == (0, ncols - 1):
+            if pipe == 'VE':
+                return action_list
+        if (i, j) == (nrows - 1, 0):
+            if pipe == 'VD':
+                return action_list
+        if (i, j) == (nrows - 1, ncols - 1):
+            if pipe == 'VC':
+                return action_list
+        if i == 0:
+            if pipe == "BB" or pipe == "LH":
+                return action_list
+        # Casos para linha de baixo
+        if i == nrows - 1:
+            if pipe == "BC" or pipe == "LH":
+                return action_list
+        # Casos para a linha da direita
+        if j == ncols - 1:
+            if pipe == "BE" or pipe == "LV":
+                return action_list
+        # Casos para a linha da esquerda
+        if j == 0:
+            if pipe == "BD" or pipe == "LV":
+                return action_list 
         self.append_piece_actions(i, j, pipe, action_list)
         return action_list
 
