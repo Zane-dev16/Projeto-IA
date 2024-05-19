@@ -454,7 +454,6 @@ class PipeMania(Problem):
   
                     else:
                         adiciona_lista_pecas_F(i, j, pipe, action_list)
-                        adiciona_lista_pecas_B(i, j, pipe, action_list)
                         adiciona_lista_pecas_L(i, j, pipe, action_list)
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
 
@@ -472,7 +471,6 @@ class PipeMania(Problem):
                         
                     else:
                         adiciona_lista_pecas_F(i, j, pipe, action_list)
-                        adiciona_lista_pecas_B(i, j, pipe, action_list)
                         adiciona_lista_pecas_L(i, j, pipe, action_list)
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
                         
@@ -488,7 +486,6 @@ class PipeMania(Problem):
                            
                     else:
                         adiciona_lista_pecas_F(i, j, pipe, action_list)
-                        adiciona_lista_pecas_B(i, j, pipe, action_list)
                         adiciona_lista_pecas_L(i, j, pipe, action_list)
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
                          
@@ -504,7 +501,6 @@ class PipeMania(Problem):
                          
                     else:
                         adiciona_lista_pecas_F(i, j, pipe, action_list)
-                        adiciona_lista_pecas_B(i, j, pipe, action_list)
                         adiciona_lista_pecas_L(i, j, pipe, action_list)
                         adiciona_lista_pecas_V(i, j, pipe, action_list)
                          
