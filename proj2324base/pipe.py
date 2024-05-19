@@ -200,20 +200,11 @@ class PipeManiaState:
     def __lt__(self, other):
         return self.id < other.id
 
-    def rotate(self, row, col, clockwise):
-        headings_list = {
-            "F": ["FD", "FC", "FE", "FB"],
-            "B": ["BD", "BC", "BE", "BB"],
-            "V": ["VD", "VC", "VE", "VB"],
-            "L": ["LH","LV"]
-        }
+    def rotate(self, row, col, new_piece):
         #print(row, col, clockwise)
 
         new_board = self.board.copy_board()
-        value = self.board.get_value(row, col)
-        headings = headings_list[value[0]]
-        inc = -1 if clockwise else 1
-        new_board.pipes[row][col] = headings[(headings.index(value) + inc) % len(headings)]
+        new_board.pipes[row][col] = new_piece
         return PipeManiaState(new_board)
 
 
@@ -405,8 +396,6 @@ class PipeMania(Problem):
 
         for i in range(nrows):
             for j in range(ncols):
-                if (i, j) == (0, 0):
-                    print("hi")
                 pipe = state.board.get_value(i, j)
                 rotated = False
 
@@ -571,22 +560,6 @@ if __name__ == "__main__":
     problem = PipeMania(board)
     # Criar um estado com a configuração inicial:
     s0 = PipeManiaState(board)
-    # Aplicar as ações que resolvem a instância
-    s1 = problem.result(s0, (0, 1, True))
-    s2 = problem.result(s1, (0, 1, True))
-    s3 = problem.result(s2, (0, 2, True))
-    s4 = problem.result(s3, (0, 2, True))
-    s5 = problem.result(s4, (1, 0, True))
-    s6 = problem.result(s5, (1, 1, True))
-    s7 = problem.result(s6, (2, 0, False)) # anti-clockwise (exemplo de uso) 
-    s8 = problem.result(s7, (2, 0, False)) # anti-clockwise (exemplo de uso) 
-    s9 = problem.result(s8, (2, 1, True))
-    s10 = problem.result(s9, (2, 1, True))
-    s11 = problem.result(s10, (2, 2, True))
-    # Verificar se foi atingida a solução
-    print("Is goal?", problem.goal_test(s5))
-    print("Is goal?", problem.goal_test(s11))
-    print("Solution:\n", s11.board.print(), sep="")
     print("Actions:\n", problem.actions(s0))
 
 
