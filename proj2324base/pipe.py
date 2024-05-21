@@ -70,6 +70,8 @@ class Board:
         return 0 <= row < self.nrows and 0 <= col < self.ncols
 
     def get_value(self, row: int, col: int) -> str:
+        if not self.is_valid_indices(row, col):
+            return None
         index = row * self.ncols + col
         return self.pipes[index]
     
@@ -237,63 +239,55 @@ class PipeMania(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas corretamente e formam um caminho contínuo."""
-
-        # Verificar se todas as posicoes do board estao corretamente preenchidas
-        for row in range(state.board.nrows):
-            for col in range(state.board.ncols):
-                pipe = state.board.get_value(row, col)
-                if pipe not in pipe_map:
-                    return False  # Encontrou uma posicao vazia ou com input errado, nao e um estado objetivo
-
-        # Convert board values to integers using the pipe_map
-        board = [[pipe_map[state.board.get_value(row, col)] for col in range(state.board.ncols)] for row in range(state.board.nrows)]
+        board = state.board
 
         # Verificar se todas as peças estao conectadas formando um caminho contínuo
         visited = [[False] * state.board.ncols for _ in range(state.board.nrows)]
 
-        # Define starting point, assuming (0, 0) is the start
-        start_row, start_col = 0, 0  # Change this if your starting point is different
-
-        # Helper function to check if two pipes are connected
-        def is_connected(pipe, next_pipe, direction):
-            if direction == "right":
-                return pipe in lig_dir and next_pipe in lig_esq
-            elif direction == "down":
-                return pipe in lig_baixo and next_pipe in lig_cima
-            elif direction == "left":
-                return pipe in lig_esq and next_pipe in lig_dir
-            elif direction == "up":
-                return pipe in lig_cima and next_pipe in lig_baixo
-            return False
-
+        def is_connected_horiz(pipe, next_pipe):
+            return pipe in lig_dir and next_pipe in lig_esq
+        
+        def is_connected_vert(pipe, next_pipe):
+            return pipe in lig_baixo and next_pipe in lig_cima
         # Depth-First Search (DFS) to check connectivity
-        def dfs(row, col):
-            stack = [(row, col)]
+        def dfs():
+            stack = [(0, 0)]
             while stack:
                 r, c = stack.pop()
-                if not state.board.is_valid_indices(r, c) or visited[r][c]:
+                if visited[r][c]:
                     continue
                 visited[r][c] = True
-                pipe = board[r][c]
+                pipe = board.get_value(r, c)
 
-                # Check all 4 directions
-                if state.board.is_valid_indices(r, c + 1) and not visited[r][c + 1] and is_connected(pipe, board[r][c + 1], "right"):
-                    stack.append((r, c + 1))
-                if state.board.is_valid_indices(r + 1, c) and not visited[r + 1][c] and is_connected(pipe, board[r + 1][c], "down"):
-                    stack.append((r + 1, c))
-                if state.board.is_valid_indices(r, c - 1) and not visited[r][c - 1] and is_connected(pipe, board[r][c - 1], "left"):
-                    stack.append((r, c - 1))
-                if state.board.is_valid_indices(r - 1, c) and not visited[r - 1][c] and is_connected(pipe, board[r - 1][c], "up"):
-                    stack.append((r - 1, c))
+                if pipe in lig_dir:
+                    if is_connected_horiz(pipe, board.get_value(r, c + 1)):
 
+                        stack.append((r, c + 1))
+                    else:
+                        return False
+                if pipe in lig_esq:
+                    if is_connected_horiz(board.get_value(r, c - 1), pipe):
+                        stack.append((r, c - 1))
+                    else:
+                        return False
+                if pipe in lig_baixo:
+                    if is_connected_vert(pipe, board.get_value(r + 1, c)):
+                        stack.append((r + 1, c))
+                    else:
+                        return False
+                if pipe in lig_cima:
+                    if is_connected_vert(board.get_value(r - 1, c), pipe):
+                        stack.append((r - 1, c ))
+                    else:
+                        return False
         # Start DFS from the initial position
-        dfs(start_row, start_col)
+        if dfs():
+            return False
 
         # Check if all cells were visited
-        for row in range(state.board.nrows):
-            for col in range(state.board.ncols):
-                if not visited[row][col]:
-                    return False
+        for row in visited:
+            if not all(row):
+                return False
 
         return True
 
