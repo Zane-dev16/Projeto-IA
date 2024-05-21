@@ -97,7 +97,7 @@ class Board:
 
     def copy_board(self):
         """Copia da Representação interna de um tabuleiro de PipeMania."""
-        return Board([[self.get_value(row, col) for col in range(self.ncols)] for row in range(self.nrows)])
+        return Board(self.pipes.copy(), self.nrows, self.ncols)
 
     def adjacent_horizontal_values(self, row: int, col: int) -> tuple[str, str]:
         """Devolve os valores imediatamente à esquerda e à direita,
