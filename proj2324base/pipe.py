@@ -49,7 +49,7 @@ class PipeManiaState:
 
     def rotate(self, row, col, new_piece):
         new_board = self.board.copy_board()
-        new_board.pipes[row][col] = new_piece
+        new_board.set_value(row, col, new_piece)
         return PipeManiaState(new_board)
     
     def copy_state(self):
@@ -70,11 +70,11 @@ class Board:
         return 0 <= row < self.nrows and 0 <= col < self.ncols
 
     def get_value(self, row: int, col: int) -> str:
-        if not self.is_valid_indices(row, col):
-            raise IndexError("Board row or column out of bounds")
         index = row * self.ncols + col
         return self.pipes[index]
-
+    
+    def set_value(self, row, col, new_value):
+        self.pipes[row * self.ncols + col] = new_value
 
     def adjacent_vertical_values(self, row: int, col: int) -> tuple[str, str]:
         """Devolve os valores imediatamente acima e abaixo,
