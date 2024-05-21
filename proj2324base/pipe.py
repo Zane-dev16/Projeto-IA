@@ -84,20 +84,8 @@ class Board:
     def adjacent_vertical_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente acima e abaixo,
         respectivamente."""
-        if not self.is_valid_indices(row, col):
-            raise IndexError("Board row or column out of bounds")
 
-        if self.is_valid_indices(row - 1, col):
-            pipe_above = self.get_value(row - 1, col)
-        else:
-            pipe_above = None
-
-        if self.is_valid_indices(row + 1, col):
-            pipe_below = self.get_value(row + 1, col)
-        else:
-            pipe_below = None
-
-        return (pipe_above, pipe_below)
+        return (self.get_value(row - 1, col), self.get_value(row + 1, col))
 
     def copy_board(self):
         """Copia da Representação interna de um tabuleiro de PipeMania."""
@@ -106,20 +94,8 @@ class Board:
     def adjacent_horizontal_values(self, row: int, col: int) -> (str, str):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
-        if not self.is_valid_indices(row, col):
-            raise IndexError("Board row or column out of bounds")
+        return (self.get_value(row, col - 1), self.get_value(row, col + 1))
 
-        if self.is_valid_indices(row, col - 1):
-            pipe_left = self.get_value(row, col - 1)
-        else:
-            pipe_left = None
-
-        if self.is_valid_indices(row, col + 1):
-            pipe_right = self.get_value(row, col + 1)
-        else:
-            pipe_right = None
-
-        return (pipe_left, pipe_right)
 
     @staticmethod 
     def read_pipes():
@@ -199,7 +175,7 @@ class PipeMania(Problem):
     
     def top_left_no_connect_actions(self, i, j, pipe_group):
         if pipe_group == F_group:
-            return [(i, j, new_pipe) for new_pipe in (FB, FD)]
+            return [(i, j, FB), (i, j, FD)]
         if pipe_group == B_group:
             return []
         if pipe_group == V_group:
@@ -216,13 +192,125 @@ class PipeMania(Problem):
             return [(i, j, VE)]
         if pipe_group == L_group:
             return [(i, j, LH)]
+    
+    def top_connect_nl_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FC)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return [(i, j, LV)]
+    
+    def top_left_connect_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return []
+        if pipe_group == B_group:
+            return [(i, j, BE)]
+        if pipe_group == V_group:
+            return [(i, j, VC)]
+        if pipe_group == L_group:
+            return []
         
+    def top_connect_nl_nb_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FC)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return [(i, j, VD)]
+        if pipe_group == L_group:
+            return []
+    
+    def top_left_connect_nb_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return []
+        if pipe_group == B_group:
+            return [(i, j, BC)]
+        if pipe_group == V_group:
+            return [(i, j, VC)]
+        if pipe_group == L_group:
+            return []
+
+    def top_connect_nl_nb_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FC)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return []
+    
+    def top_left_connect_nb_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return []
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return [(i, j, VC)]
+        if pipe_group == L_group:
+            return []
+
+    
+    def nt_nl_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FB)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return []
+    
+    def left_connect_nt_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FE)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return [(i, j, VE)]
+        if pipe_group == L_group:
+            return []
+        
+    def nt_nl_nb_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FD)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return []
+    
+    def left_connect_nt_nb_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FE)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return [(i, j, LH)]
+
+    def nt_nl_nb_nr_actions(self, i, j, pipe_group):
+        return []
+    
+    def left_connect_nt_nb_nr_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FE)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return []
+        if pipe_group == L_group:
+            return []
+
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-
-        action_list = [None]
 
         board = state.board
         nrows = board.nrows
@@ -233,18 +321,47 @@ class PipeMania(Problem):
             return []
         pipe = state.board.get_value(i, j)
 
-        top_pipe = board.get_value(i-1, j)
-        left_pipe = board.get_value(i, j-1)
+        top_pipe, bottom_pipe = board.adjacent_vertical_values(i, j)
+        left_pipe, right_pipe = board.adjacent_horizontal_values(i, j)
 
-        if top_pipe in lig_baixo:     
+        if top_pipe in lig_baixo:
             if left_pipe in lig_dir:
+                if right_pipe == None:
+                    if bottom_pipe == None:
+                        return self.top_left_connect_nb_nr_actions(i, j, pipe // 4)
+                    else:
+                        return self.top_left_connect_nr_actions(i, j, pipe // 4)
+                if bottom_pipe == None:
+                    return self.top_left_connect_nb_actions(i, j, pipe // 4)
                 return self.top_left_connect_actions(i, j, pipe // 4)
             else:
+                if right_pipe == None:
+                    if bottom_pipe == None:
+                        return self.top_connect_nl_nb_nr_actions(i, j, pipe // 4)
+                    else:
+                        return self.top_connect_nl_nr_actions(i, j, pipe // 4)
+                if bottom_pipe == None:
+                    return self.top_connect_nl_nb_actions(i, j, pipe // 4)
                 return self.top_connect_no_left_actions(i, j, pipe // 4)
+
         else:
             if left_pipe in lig_dir:
+                if right_pipe == None:
+                    if bottom_pipe == None:
+                        return self.left_connect_nt_nb_nr_actions(i, j, pipe // 4)
+                    else:
+                        return self.left_connect_nt_nr_actions(i, j, pipe // 4)
+                if bottom_pipe == None:
+                    return self.left_connect_nt_nb_actions(i, j, pipe // 4)
                 return self.left_connect_no_top_actions(i, j, pipe // 4)
             else:
+                if right_pipe == None:
+                    if bottom_pipe == None:
+                        return self.nt_nl_nb_nr_actions(i, j, pipe // 4)
+                    else:
+                        return self.nt_nl_nr_actions(i, j, pipe // 4)
+                if bottom_pipe == None:
+                    return self.nt_nl_nb_actions(i, j, pipe // 4)
                 return self.top_left_no_connect_actions(i, j, pipe // 4)
 
     def result(self, state: PipeManiaState, action):
