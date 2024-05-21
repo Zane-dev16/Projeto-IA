@@ -18,8 +18,8 @@ from search import (
 )
 
 FD, FC, FE, FB, BD, BC, BE, BB, VD, VC, VE, VB, LH, LV = range(14)
-pipe_groups = [[FD, FC, FE, FB], [BD, BC, BE, BB], [VD, VC, VE, VB], [LH, LV]]
-pipe_strings = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
+pipe_groups = ({FD, FC, FE, FB}, {BD, BC, BE, BB}, {VD, VC, VE, VB}, {LH, LV})
+pipe_strings = ("FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV")
 
 lig_esq = {FE, BC, BB, BE, VC, VE, LH}
 lig_dir = {FD, BC, BB, BD, VB, VD, LH}
@@ -168,35 +168,9 @@ class PipeMania(Problem):
         """Função heurística utilizada para a procura A*."""
         return node.state.expansion_id
 
-    def append_F_piece_actions(self, i, j, pipe, action_list):
-        for new_pipe in ['FC', 'FB', 'FE', 'FD']:
-            if new_pipe != pipe:
-                action_list.append((i, j, new_pipe))
-    
-    def append_B_piece_actions(self, i, j,pipe, action_list):
-        for new_pipe in ['BC', 'BB', 'BE', 'BD']:
-            if new_pipe != pipe:
-                action_list.append((i, j, new_pipe))
-
-    def append_V_piece_actions(self, i, j,pipe, action_list):
-        for new_pipe in ['VC', 'VB', 'VE', 'VD']:
-            if new_pipe != pipe:
-                action_list.append((i, j, new_pipe))
-
-    def append_L_piece_actions(self, i,j, pipe, action_list):
-        for new_pipe in ['LH', 'LV']:
-            if new_pipe != pipe:
-                action_list.append((i, j, new_pipe))
-
     def append_piece_actions(self, i, j, pipe, action_list):
-        if pipe[0] == 'F':
-            self.append_F_piece_actions(i, j, pipe, action_list)
-        if pipe[0] == 'B':
-            self.append_B_piece_actions(i, j, pipe, action_list)
-        if pipe[0] == 'V':
-            self.append_V_piece_actions(i, j, pipe, action_list)
-        if pipe[0] == 'L':
-            self.append_L_piece_actions(i, j, pipe, action_list)
+        for new_pipe in pipe_groups[pipe//4] - {pipe}:
+            action_list.append((i, j, new_pipe))
 
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -329,4 +303,9 @@ if __name__ == "__main__":
     # Ler grelha do figura 1a:
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
-    print(board.print())
+    problem = PipeMania(board)
+    goal_node = astar_search(problem)
+    if goal_node:
+        print(goal_node.state.board.print())
+    else:
+        print("got here")
