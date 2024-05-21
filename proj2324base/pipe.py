@@ -53,8 +53,7 @@ class PipeManiaState:
         return PipeManiaState(new_board)
     
     def copy_state(self):
-        new_board = self.board.copy_board()
-        return PipeManiaState(new_board)
+        return PipeManiaState(self.board.copy_board())
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
