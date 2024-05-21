@@ -18,6 +18,8 @@ from search import (
 )
 
 FD, FC, FE, FB, BD, BC, BE, BB, VD, VC, VE, VB, LH, LV = range(14)
+pipe_groups = [[FD, FC, FE, FB], [BD, BC, BE, BB], [VD, VC, VE, VB], [LH, LV]]
+pipe_strings = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
 
 lig_esq = {FE, BC, BB, BE, VC, VE, LH}
 lig_dir = {FD, BC, BB, BD, VB, VD, LH}
@@ -56,10 +58,10 @@ class PipeManiaState:
 
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
-    def __init__(self, pipes) -> None:
+    def __init__(self, pipes, nrows, ncols) -> None:
         self.pipes = pipes
-        self.nrows = len(self.pipes)
-        self.ncols = len(self.pipes)
+        self.nrows = nrows
+        self.ncols = ncols
 
 
     def is_valid_indices(self, row: int, col: int) -> bool:
@@ -71,7 +73,8 @@ class Board:
     def get_value(self, row: int, col: int) -> str:
         if not self.is_valid_indices(row, col):
             raise IndexError("Board row or column out of bounds")
-        return self.pipes[row][col]
+        index = row * self.ncols + col
+        return self.pipes[index]
 
 
     def adjacent_vertical_values(self, row: int, col: int) -> tuple[str, str]:
@@ -116,15 +119,22 @@ class Board:
 
     @staticmethod 
     def read_pipes():
-        """Lê o test do standard input (stdin) que é passado como argumento
-        e retorna uma matriz dos pipes."""
-        pipes = list()
+        """Reads pipes from standard input (stdin) and returns nrows, ncols, and pipes."""
+        nrows = 0
+        ncols = None
+        pipes = []
         while True:
             pipe_row = sys.stdin.readline().split()
             if not pipe_row:
                 break
-            pipes.append(pipe_row)
-        return pipes
+            if ncols is None:
+                ncols = len(pipe_row)
+            else:
+                if len(pipe_row) != ncols:
+                    raise ValueError("Inconsistent number of columns in the input")
+            pipes.extend([pipe_map[pipe] for pipe in pipe_row])
+            nrows += 1
+        return pipes, nrows, ncols
 
     @staticmethod
     def parse_instance():
@@ -133,20 +143,18 @@ class Board:
 
         Por exemplo:
             $ python3 pipe.py < test-01.txt
-
-
         """
-        pipes = Board.read_pipes()
-        return Board(pipes)
+        return Board(*Board.read_pipes())
 
     def print(self):
-        """Imprime o tabuleiro de PipeMania."""
+        """Prints the PipeMania board."""
         board_output = []
         for row in range(self.nrows):
-            board_output.append("\t".join([self.get_value(row, col) for col in range(self.ncols)]))
+            row_output = ""
+            for col in range(self.ncols):
+                row_output += pipe_strings[self.get_value(row, col)] + "\t"
+            board_output.append(row_output.rstrip())
         return "\n".join(board_output)
-
-
 
     # TODO: outros metodos da classe
 
@@ -322,8 +330,4 @@ if __name__ == "__main__":
     # Ler grelha do figura 1a:
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
-    problem = PipeMania(board)
-    goal_node = astar_search(problem)
-    if goal_node:
-        print(goal_node.state.board.print())
-    pass
+    print(board.print())
