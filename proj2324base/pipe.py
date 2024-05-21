@@ -19,12 +19,15 @@ from search import (
 
 FD, FC, FE, FB, BD, BC, BE, BB, VD, VC, VE, VB, LH, LV = range(14)
 pipe_groups = ({FD, FC, FE, FB}, {BD, BC, BE, BB}, {VD, VC, VE, VB}, {LH, LV})
+F_group, B_group, V_group, L_group = range(4)
 pipe_strings = ("FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV")
 
 lig_esq = {FE, BC, BB, BE, VC, VE, LH}
 lig_dir = {FD, BC, BB, BD, VB, VD, LH}
 lig_cima = {FC, BC, BE, BD, VC, VD, LV}
 lig_baixo = {FB, BB, BE, BD, VB, VE, LV}
+
+
 # Map the pipe characters to integers
 pipe_map = {
     "FD": FD, "FC": FC, "FE": FE, "FB": FB,
@@ -174,48 +177,75 @@ class PipeMania(Problem):
         for new_pipe in pipe_groups[pipe//4] - {pipe}:
             action_list.append((i, j, new_pipe))
 
+    def top_connect_no_left_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FC)]
+        if pipe_group == B_group:
+            return [(i, j, BD)]
+        if pipe_group == V_group:
+            return [(i, j, VD)]
+        if pipe_group == L_group:
+            return [(i, j, LV)]
+        
+    def top_left_connect_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return []
+        if pipe_group == B_group:
+            return [(i, j, BC), (i, j, BE)]
+        if pipe_group == V_group:
+            return [(i, j, VC)]
+        if pipe_group == L_group:
+            return []
+    
+    def top_left_no_connect_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, new_pipe) for new_pipe in (FB, FD)]
+        if pipe_group == B_group:
+            return []
+        if pipe_group == V_group:
+            return [(i, j, VB)]
+        if pipe_group == L_group:
+            return []
+        
+    def left_connect_no_top_actions(self, i, j, pipe_group):
+        if pipe_group == F_group:
+            return [(i, j, FE)]
+        if pipe_group == B_group:
+            return [(i, j, BB)]
+        if pipe_group == V_group:
+            return [(i, j, VE)]
+        if pipe_group == L_group:
+            return [(i, j, LH)]
+        
+
     def actions(self, state: PipeManiaState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
 
         action_list = [None]
 
-        nrows = self.initial.board.nrows
-        ncols = self.initial.board.ncols
+        board = state.board
+        nrows = board.nrows
+        ncols = board.ncols
         i = state.expansion_id // ncols
         j = state.expansion_id % ncols
         if i == nrows:
             return []
         pipe = state.board.get_value(i, j)
-        if(i,j) == (0,0):
-            if pipe == VB:
-                return action_list
-        if (i, j) == (0, ncols - 1):
-            if pipe == VE:
-                return action_list
-        if (i, j) == (nrows - 1, 0):
-            if pipe == VD:
-                return action_list
-        if (i, j) == (nrows - 1, ncols - 1):
-            if pipe == VC:
-                return action_list
-        if i == 0:
-            if pipe == BB or pipe == LH:
-                return action_list
-        # Casos para linha de baixo
-        if i == nrows - 1:
-            if pipe == BC or pipe == LH:
-                return action_list
-        # Casos para a linha da direita
-        if j == ncols - 1:
-            if pipe == BE or pipe == LV:
-                return action_list
-        # Casos para a linha da esquerda
-        if j == 0:
-            if pipe == BD or pipe == LV:
-                return action_list 
-        self.append_piece_actions(i, j, pipe, action_list)
-        return action_list
+
+        top_pipe = board.get_value(i-1, j)
+        left_pipe = board.get_value(i, j-1)
+
+        if top_pipe in lig_baixo:     
+            if left_pipe in lig_dir:
+                return self.top_left_connect_actions(i, j, pipe // 4)
+            else:
+                return self.top_connect_no_left_actions(i, j, pipe // 4)
+        else:
+            if left_pipe in lig_dir:
+                return self.left_connect_no_top_actions(i, j, pipe // 4)
+            else:
+                return self.top_left_no_connect_actions(i, j, pipe // 4)
 
     def result(self, state: PipeManiaState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -298,7 +328,7 @@ if __name__ == "__main__":
     board = Board.parse_instance()
     # Criar uma instância de PipeMania:
     problem = PipeMania(board)
-    goal_node = astar_search(problem)
+    goal_node = depth_first_tree_search(problem)
     if goal_node:
         print(goal_node.state.board.print())
     else:
