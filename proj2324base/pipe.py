@@ -332,4 +332,4 @@ if __name__ == "__main__":
     if goal_node:
         print(goal_node.state.board.print())
     else:
-        print("got here")
+        pass
