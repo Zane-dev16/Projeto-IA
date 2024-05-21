@@ -17,6 +17,20 @@ from search import (
     recursive_best_first_search,
 )
 
+FD, FC, FE, FB, BD, BC, BE, BB, VD, VC, VE, VB, LH, LV = range(14)
+
+lig_esq = {FE, BC, BB, BE, VC, VE, LH}
+lig_dir = {FD, BC, BB, BD, VB, VD, LH}
+lig_cima = {FC, BC, BE, BD, VC, VD, LV}
+lig_baixo = {FB, BB, BE, BD, VB, VE, LV}
+# Map the pipe characters to integers
+pipe_map = {
+    "FD": FD, "FC": FC, "FE": FE, "FB": FB,
+    "BD": BD, "BC": BC, "BE": BE, "BB": BB,
+    "VD": VD, "VC": VC, "VE": VE, "VB": VB,
+    "LH": LH, "LV": LV
+}
+
 
 class PipeManiaState:
 
@@ -145,7 +159,7 @@ class PipeMania(Problem):
     
     def h(self, node: Node):
         """Função heurística utilizada para a procura A*."""
-        return 1
+        return node.state.expansion_id
 
     def append_F_piece_actions(self, i, j, pipe, action_list):
         for new_pipe in ['FC', 'FB', 'FE', 'FD']:
@@ -233,77 +247,73 @@ class PipeMania(Problem):
         return new_state
 
         
+    # Define pipe constants
+
+    # Replace string comparisons with integer comparisons
+
+
     def goal_test(self, state: PipeManiaState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas corretamente e formam um caminho contínuo."""
 
         # Verificar se todas as posicoes do board estao corretamente preenchidas
-        pipe_list = ["FD", "FC", "FE", "FB", "BD", "BC", "BE", "BB", "VD", "VC", "VE", "VB", "LH", "LV"]
-        
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 pipe = state.board.get_value(row, col)
-                if pipe not in pipe_list:
+                if pipe not in pipe_map:
                     return False  # Encontrou uma posicao vazia ou com input errado, nao e um estado objetivo
+
+        # Convert board values to integers using the pipe_map
+        board = [[pipe_map[state.board.get_value(row, col)] for col in range(state.board.ncols)] for row in range(state.board.nrows)]
 
         # Verificar se todas as peças estao conectadas formando um caminho contínuo
         visited = [[False] * state.board.ncols for _ in range(state.board.nrows)]
-        #num_connected_components = 0
 
-        def dfs(row, col, source=None):
-            if not state.board.is_valid_indices(row, col):
-                return False 
-            if visited[row][col]:
-                return True
+        # Define starting point, assuming (0, 0) is the start
+        start_row, start_col = 0, 0  # Change this if your starting point is different
 
-            visited[row][col] = True
-            pipe = state.board.get_value(row, col)
-
-            lig_esq = ["FE", "BC", "BB", "BE", "VC", "VE", "LH"]
-            lig_dir = ["FD", "BC", "BB", "BD", "VB", "VD", "LH"]
-            lig_cima = ["FC", "BC", "BE", "BD", "VC", "VD", "LV"]
-            lig_baixo = ["FB", "BB", "BE","BD", "VB", "VE", "LV"]
-
-            if pipe not in lig_dir:
-                if source=="D":
-                    return False
-            else:
-                next_row, next_col = row, col + 1
-                if dfs(next_row, next_col, source="E") == False:
-                    return False
-
-            if pipe not in lig_baixo:
-                if source=="B":
-                    return False
-            else:
-                next_row, next_col = row + 1, col
-                if dfs(next_row, next_col, source="C") == False:
-                    return False
-
-            if pipe not in lig_esq:
-                if source=="E":
-                    return False
-            else:
-                next_row, next_col = row, col - 1
-                if dfs(next_row, next_col, source="D") == False:
-                    return False
-
-            if pipe not in lig_cima:
-                if source=="C":
-                    return False
-            else:
-                next_row, next_col = row - 1, col
-                if dfs(next_row, next_col, source="B") == False:
-                    return False
-            return True
-
-        if dfs(row, col) == False:
+        # Helper function to check if two pipes are connected
+        def is_connected(pipe, next_pipe, direction):
+            if direction == "right":
+                return pipe in lig_dir and next_pipe in lig_esq
+            elif direction == "down":
+                return pipe in lig_baixo and next_pipe in lig_cima
+            elif direction == "left":
+                return pipe in lig_esq and next_pipe in lig_dir
+            elif direction == "up":
+                return pipe in lig_cima and next_pipe in lig_baixo
             return False
+
+        # Depth-First Search (DFS) to check connectivity
+        def dfs(row, col):
+            stack = [(row, col)]
+            while stack:
+                r, c = stack.pop()
+                if not state.board.is_valid_indices(r, c) or visited[r][c]:
+                    continue
+                visited[r][c] = True
+                pipe = board[r][c]
+
+                # Check all 4 directions
+                if state.board.is_valid_indices(r, c + 1) and not visited[r][c + 1] and is_connected(pipe, board[r][c + 1], "right"):
+                    stack.append((r, c + 1))
+                if state.board.is_valid_indices(r + 1, c) and not visited[r + 1][c] and is_connected(pipe, board[r + 1][c], "down"):
+                    stack.append((r + 1, c))
+                if state.board.is_valid_indices(r, c - 1) and not visited[r][c - 1] and is_connected(pipe, board[r][c - 1], "left"):
+                    stack.append((r, c - 1))
+                if state.board.is_valid_indices(r - 1, c) and not visited[r - 1][c] and is_connected(pipe, board[r - 1][c], "up"):
+                    stack.append((r - 1, c))
+
+        # Start DFS from the initial position
+        dfs(start_row, start_col)
+
+        # Check if all cells were visited
         for row in range(state.board.nrows):
             for col in range(state.board.ncols):
                 if not visited[row][col]:
                     return False
+
         return True
 
 
