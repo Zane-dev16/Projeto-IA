@@ -369,11 +369,13 @@ class PipeMania(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        if action == None:
-            new_state = state.copy_state()
-        else:
-            new_state = state.rotate(*action)
+        new_state = state.rotate(*action)
         new_state.expansion_id = state.expansion_id + 1
+        new_actions = self.actions(new_state)
+        while len(new_actions) == 1:
+            new_state.board.set_value(*new_actions[0])
+            new_state.expansion_id += 1
+            new_actions = self.actions(new_state)
         return new_state
 
         
